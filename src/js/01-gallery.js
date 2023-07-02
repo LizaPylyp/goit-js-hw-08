@@ -1,48 +1,23 @@
-// Add imports above this line
-
+import { galleryItems } from "./gallery-items.js";
 // Change code below this line
-import { galleryItems } from './gallery-items.js';
 
-const galleryList = document.querySelector('.gallery');
+import SimpleLightbox from "simplelightbox";
+import "simplelightbox/dist/simple-lightbox.min.css";
+const galeryEl = document.querySelector(".gallery");
+const markup = galleryItems
 
-function createGalleryItem(item) {
-  const galleryItem = document.createElement('li');
-  galleryItem.classList.add('gallery__item');
-
-  const link = document.createElement('a');
-  link.classList.add('gallery__link');
-  link.href = item.original;
-
-  const image = document.createElement('img');
-  image.classList.add('gallery__image');
-  image.src = item.preview;
-  image.alt = item.description;
-  image.setAttribute('data-source', item.original);
-
-  link.appendChild(image);
-  galleryItem.appendChild(link);
-
-  return galleryItem;
-}
-
-function openModal(event) {
-  event.preventDefault();
-
-  const target = event.target;
-  if (target.classList.contains('gallery__image')) {
-    const imageSource = target.dataset.source;
-
-    const instance = basicLightbox.create(`<img src="${imageSource}">`);
-    instance.show();
-  }
-}
-
-galleryList.addEventListener('click', openModal);
-
-function renderGalleryItems(items) {
-  const galleryItems = items.map((item) => createGalleryItem(item));
-  galleryList.append(...galleryItems);
-}
-
-renderGalleryItems(galleryItems);
-console.log(galleryItems);
+  .map(
+    ({ preview, original, description }) => 
+    `<li class="gallery__item">
+    <a class="gallery__link" href="${original}">
+       <img class="gallery__image" src="${preview}" alt="${description}" />
+    </a>
+ </li>`
+  )
+  .join("");
+galeryEl.insertAdjacentHTML("beforeend", markup);
+const lightbox = new SimpleLightbox(".gallery a", {
+  captionPosition: "bottom",
+  captionsData: "alt",
+  captionDelay: 250,
+});
