@@ -1,70 +1,48 @@
-import throttle from "lodash.throttle";
-const STOR_KEY_INPUT ='feedback-form-state';
+import throttle from 'lodash.throttle';
 
 const form = document.querySelector('.feedback-form');
+const email = document.querySelector('[name = email]');
+const message = document.querySelector('[name = message]');
+const STORAGE_KEY = "feedback-form-state";
 
-const inputEmail  = document.querySelector('input');
+const load = key => {
+  try {
+    const serializedState = localStorage.getItem(key);
+    return serializedState === null ? undefined : JSON.parse(serializedState);
+  } catch (error) {
+    console.error("Get state error: ", error.message);
+  }
+};
 
-const textArea = document.querySelector('textarea');
-
-form.addEventListener('input', throttle (setCurrentValue, 500));
- form.addEventListener('submit', submitValues);
-
-const feedback = {};
-
-getDateOfFeedback();
-
-function getDateOfFeedback() {
-
-const getFeedBack = localStorage.getItem(STOR_KEY_INPUT); 
-const feedBackParseJSON = JSON.parse(getFeedBack);
-
-if (getFeedBack) {
-inputEmail.value = feedBackParse2SON.email;
-
-textArea.value = feedBackParseDSON.message;
+const storageData = load(STORAGE_KEY);
+if (storageData) {
+  email.value = storageData.email;
+  message.value = storageData.message;
 }
-};
 
-function setCurrentValue(e) {
 
-    if (inputEmail.value !== ''|| textArea.value == '') {
-    
-    feedBack.email = inputEmail.value;
-    
-    feedBack.message = textArea.value;
-    
-    const feedBackJSON = JSON.stringify(feedBack);
-    
-    localStorage.setItem(STOR_KEY_INPUT, feedBackJSON);
-    }
-};
-    
-    function submitValues(event) {
-    
-    event.preventDefault();
-    
-    if (inputEmail.value === '' || textArea.value === '') {
-         return alert('Please fill in all required fields!');
-    
-    } else {
-    
-    showEmptyFoForm();
-    
-    inputEmail.value ='';
-    
-    textArea.value = '';
-    
-    localStorage.removeItem(STOR_KEY_INPUT);
-    }
-};
-function showEmptyFbForm() {
+form.addEventListener('input', throttle(event => {
+  
+  const currentValues = {
+    email:  email.value,
+    message: message.value,
+  }
+       
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(currentValues));
+     
+  }, 500) 
+);
 
-    const checkFeedback =localStorage.getItem(STOR_KEY_INPUT);
-    
-    const feedBackParseDSON= JSON.parse(checkFeedback);
-    
-    if (checkFeedback){
-        console.log(feedBackParseDSON);
-    }
-};
+
+form.addEventListener('submit', event => {
+  event.preventDefault();
+
+  if (email.value === '' || message.value === '') {
+    return alert('All fields are to be filled');
+  }
+
+  console.log({ email: email.value, message: message.value });
+  form.reset(); 
+  localStorage.removeItem(STORAGE_KEY); 
+});
+
